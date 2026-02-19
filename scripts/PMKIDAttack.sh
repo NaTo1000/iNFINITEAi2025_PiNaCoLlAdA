@@ -351,15 +351,16 @@ capture_pmkid() {
     
     log info "Capturing PMKID from $_formatted (attempt $_attempt/$PMKID_MAX_RETRIES)"
     
-    # Build hcxdumptool command
-    _cmd="hcxdumptool -i \"$PMKID_IFACE\" -o \"$_output\" --filterlist_ap=\"$_formatted\" --filtermode=2 --enable_status=1"
+    # Build hcxdumptool arguments
+    _args="-i $PMKID_IFACE -o $_output --filterlist_ap=$_formatted --filtermode=2 --enable_status=1"
     
     if [ "$PMKID_CHANNEL_HOP" = "1" ]; then
-        _cmd="$_cmd --enable_channels=1,2,3,4,5,6,7,8,9,10,11,12,13,36,40,44,48"
+        _args="$_args --enable_channels=1,2,3,4,5,6,7,8,9,10,11,12,13,36,40,44,48"
     fi
     
-    # Run capture with timeout
-    timeout "$PMKID_TIMEOUT" sh -c "$_cmd" 2>&1 | while IFS= read -r _line; do
+    # Run capture with timeout - using word splitting intentionally for args
+    # shellcheck disable=SC2086
+    timeout "$PMKID_TIMEOUT" hcxdumptool $_args 2>&1 | while IFS= read -r _line; do
         log debug "hcxdumptool: $_line"
     done || true
     
@@ -496,13 +497,16 @@ cmd_start_all() {
     
     _output="${CAPTURE_DIR}/all_$(date +%s).pcapng"
     
-    _cmd="hcxdumptool -i \"$PMKID_IFACE\" -o \"$_output\" --enable_status=1"
+    # Build arguments
+    _args="-i $PMKID_IFACE -o $_output --enable_status=1"
     
     if [ "$PMKID_CHANNEL_HOP" = "1" ]; then
-        _cmd="$_cmd --enable_channels=1,2,3,4,5,6,7,8,9,10,11,12,13,36,40,44,48"
+        _args="$_args --enable_channels=1,2,3,4,5,6,7,8,9,10,11,12,13,36,40,44,48"
     fi
     
-    timeout "$PMKID_TIMEOUT" sh -c "$_cmd" 2>&1 | while IFS= read -r _line; do
+    # Run capture with timeout - using word splitting intentionally for args
+    # shellcheck disable=SC2086
+    timeout "$PMKID_TIMEOUT" hcxdumptool $_args 2>&1 | while IFS= read -r _line; do
         log debug "hcxdumptool: $_line"
     done || true
     
@@ -676,7 +680,7 @@ cmd_auto() {
     fi
     
     # Trap signals for clean shutdown
-    trap 'log info "Caught signal, stopping auto mode..."; cmd_auto_stop; exit 0' INT TERM
+    trap 'log info "Caught signal, stopping auto mode..."; cmd_auto_stop || true; exit 0' INT TERM
     
     # Save main PID
     save_pid "auto_main" "$$"
@@ -885,6 +889,18 @@ cmd_clean() {
     # Stop any running processes first
     cmd_auto_stop 2>/dev/null || true
     cmd_stop
+    
+    # Validate output directory before deletion
+    if [ -z "$PMKID_OUTPUT_DIR" ]; then
+        die "PMKID_OUTPUT_DIR is not set, refusing to delete"
+    fi
+    
+    # Additional safety checks
+    case "$PMKID_OUTPUT_DIR" in
+        /|/bin|/boot|/dev|/etc|/home|/lib|/opt|/root|/sbin|/sys|/usr|/var)
+            die "PMKID_OUTPUT_DIR points to a system directory, refusing to delete"
+            ;;
+    esac
     
     # Remove files
     if [ -d "$PMKID_OUTPUT_DIR" ]; then
