@@ -1,45 +1,41 @@
-.*.aux
-.*.d
-*.a
-*.cma
-*.cmi
-*.cmo
-*.cmx
-*.cmxa
-*.cmxs
-*.glob
-*.ml.d
-*.ml4.d
-*.mlg.d
-*.mli.d
-*.mllib.d
-*.mlpack.d
-*.native
-*.o
-*.v.d
-*.vio
-*.vo
-*.vok
-*.vos
-.coq-native
-.csdp.cache
-.lia.cache
-.nia.cache
-.nlia.cache
-.nra.cache
-csdp.cache
-lia.cache
-nia.cache
-nlia.cache
-nra.cache
-native_compute_profile_*.data
+# PMKID Capture Tool - Git Ignore
+# Ignore capture data and temporary files
 
-# generated timing files
-*.timing.diff
-*.v.after-timing
-*.v.before-timing
-*.v.timing
-time-of-build-after.log
-time-of-build-before.log
-time-of-build-both.log
-time-of-build-pretty.log
+# Capture files
+*.pcapng
+*.hc22000
+*.cap
+*.pcap
+
+# Log files
+*.log
+
+# Backup files
+*.tar.gz
+*.zip
+*.bak
+
+# Temporary files
+*.tmp
+*.temp
+*~
+.DS_Store
+
+# Test output
+test_output/
+test_captures/
+
+# Configuration backups
+*.conf.bak
+*.conf.old
+
+# Editor files
+*.swp
+*.swo
+.vscode/
+.idea/
+*.sublime-*
+
+# OS files
+Thumbs.db
+.Trash-*
