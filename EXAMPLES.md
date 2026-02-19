@@ -204,7 +204,7 @@ echo "Checking interface: $INTERFACE"
 echo "================================"
 
 # Check if interface exists
-if ip link show $INTERFACE &>/dev/null; then
+if ip link show "$INTERFACE" &>/dev/null; then
     echo "✓ Interface exists"
 else
     echo "✗ Interface not found"
@@ -214,7 +214,7 @@ fi
 # Check driver info
 echo ""
 echo "Driver information:"
-ethtool -i $INTERFACE 2>/dev/null | grep driver
+ethtool -i "$INTERFACE" 2>/dev/null | grep driver
 
 # Check supported modes
 echo ""
@@ -287,25 +287,25 @@ echo "====================="
 echo ""
 
 # Count total captures
-PCAPNG_COUNT=$(ls -1 $CAPTURE_DIR/*.pcapng 2>/dev/null | wc -l)
+PCAPNG_COUNT=$(ls -1 "$CAPTURE_DIR"/*.pcapng 2>/dev/null | wc -l)
 echo "Total capture files: $PCAPNG_COUNT"
 
 # Count total hashes
-HASH_COUNT=$(cat $CAPTURE_DIR/*.hc22000 2>/dev/null | wc -l)
+HASH_COUNT=$(cat "$CAPTURE_DIR"/*.hc22000 2>/dev/null | wc -l)
 echo "Total PMKID hashes: $HASH_COUNT"
 
 # Count unique BSSIDs
-UNIQUE_BSSID=$(cat $CAPTURE_DIR/*.hc22000 2>/dev/null | cut -d'*' -f4 | sort -u | wc -l)
+UNIQUE_BSSID=$(cat "$CAPTURE_DIR"/*.hc22000 2>/dev/null | cut -d'*' -f4 | sort -u | wc -l)
 echo "Unique networks: $UNIQUE_BSSID"
 
 # Show disk usage
-DISK_USAGE=$(du -sh $CAPTURE_DIR 2>/dev/null | cut -f1)
+DISK_USAGE=$(du -sh "$CAPTURE_DIR" 2>/dev/null | cut -f1)
 echo "Disk usage: $DISK_USAGE"
 
 # Show recent captures
 echo ""
 echo "Recent captures:"
-ls -lht $CAPTURE_DIR/*.hc22000 2>/dev/null | head -5
+ls -lht "$CAPTURE_DIR"/*.hc22000 2>/dev/null | head -5
 ```
 
 ## Troubleshooting Examples
@@ -331,7 +331,7 @@ fi
 echo ""
 echo "Checking dependencies:"
 for tool in hcxdumptool hcxpcapngtool airmon-ng iw; do
-    if command -v $tool &>/dev/null; then
+    if command -v "$tool" &>/dev/null; then
         echo "  ✓ $tool"
     else
         echo "  ✗ $tool (missing)"
@@ -371,8 +371,8 @@ DAYS_TO_KEEP=7
 echo "Cleaning up captures older than $DAYS_TO_KEEP days..."
 
 # Find and remove old files
-find $CAPTURE_DIR -name "*.pcapng" -mtime +$DAYS_TO_KEEP -delete
-find $CAPTURE_DIR -name "*.hc22000" -mtime +$DAYS_TO_KEEP -delete
+find "$CAPTURE_DIR" -name "*.pcapng" -mtime +"$DAYS_TO_KEEP" -delete
+find "$CAPTURE_DIR" -name "*.hc22000" -mtime +"$DAYS_TO_KEEP" -delete
 
 echo "Cleanup complete!"
 ```

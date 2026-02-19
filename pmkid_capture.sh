@@ -134,7 +134,7 @@ setup_monitor_mode() {
 scan_networks() {
     log "INFO" "Scanning for nearby networks..."
     
-    timeout 10 hcxdumptool -i $INTERFACE --do_rcascan -o /tmp/scan_temp.pcapng 2>/dev/null
+    timeout 10 hcxdumptool -i "$INTERFACE" --do_rcascan -o /tmp/scan_temp.pcapng 2>/dev/null
     
     if [ -f /tmp/scan_temp.pcapng ]; then
         hcxpcapngtool -o /tmp/scan_results.txt /tmp/scan_temp.pcapng 2>/dev/null
@@ -161,7 +161,7 @@ capture_pmkids() {
     mkdir -p "$OUTPUT_DIR"
     
     # Start capture
-    timeout $timeout hcxdumptool -i $INTERFACE -o "$output_file" --enable_status=1
+    timeout "$timeout" hcxdumptool -i "$INTERFACE" -o "$output_file" --enable_status=1
     
     if [ -f "$output_file" ]; then
         # Linux first (WiFi Pineapple Nano), then macOS fallback

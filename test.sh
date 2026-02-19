@@ -57,7 +57,7 @@ test_dependencies() {
     local required=("hcxdumptool" "hcxpcapngtool" "airmon-ng" "iw")
     
     for cmd in "${required[@]}"; do
-        if command -v $cmd &> /dev/null; then
+        if command -v "$cmd" &> /dev/null; then
             test_pass "$cmd is installed"
         else
             test_fail "$cmd is not installed"
@@ -203,9 +203,10 @@ test_disk_space() {
     
     local capture_dir="/root/pmkid_captures"
     if [ -d "$capture_dir" ]; then
-        local available=$(df "$capture_dir" 2>/dev/null | tail -1 | awk '{print $4}')
+        local available
+        available=$(df "$capture_dir" 2>/dev/null | tail -1 | awk '{print $4}')
         
-        if [ -n "$available" ]; then
+        if [ -n "$available" ] && [ "$available" -eq "$available" ] 2>/dev/null; then
             # Convert to MB
             local available_mb=$((available / 1024))
             

@@ -98,7 +98,7 @@ show_hashes() {
         
         for hashfile in "$CAPTURE_DIR"/*.hc22000; do
             if [ -f "$hashfile" ]; then
-                echo "File: $(basename $hashfile)"
+                echo "File: $(basename "$hashfile")"
                 echo "----------------------------------------"
                 cat "$hashfile"
                 echo ""
