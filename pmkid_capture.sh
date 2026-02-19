@@ -35,8 +35,9 @@ print_banner() {
 log() {
     local level=$1
     shift
-    local message="$@"
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    local message="$*"
+    local timestamp
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     
     case $level in
         "INFO")
@@ -66,8 +67,8 @@ check_dependencies() {
     local missing_tools=()
     
     for tool in "${required_tools[@]}"; do
-        if ! command -v $tool &> /dev/null; then
-            missing_tools+=($tool)
+        if ! command -v "$tool" &> /dev/null; then
+            missing_tools+=("$tool")
         fi
     done
     
@@ -100,24 +101,24 @@ setup_monitor_mode() {
     airmon-ng check kill &> /dev/null
     
     # Check if interface exists
-    if ! ip link show $interface &> /dev/null; then
+    if ! ip link show "$interface" &> /dev/null; then
         log "WARN" "Interface $interface not found, trying wlan1..."
         interface="wlan1"
         
-        if ! ip link show $interface &> /dev/null; then
+        if ! ip link show "$interface" &> /dev/null; then
             log "ERROR" "No suitable wireless interface found"
             return 1
         fi
     fi
     
     # Put interface down
-    ip link set $interface down 2>/dev/null
+    ip link set "$interface" down 2>/dev/null
     
     # Set monitor mode
-    iw dev $interface set type monitor 2>/dev/null
+    iw dev "$interface" set type monitor 2>/dev/null
     
     # Bring interface up
-    ip link set $interface up 2>/dev/null
+    ip link set "$interface" up 2>/dev/null
     
     if [ $? -eq 0 ]; then
         log "INFO" "Monitor mode enabled on $interface"
@@ -150,7 +151,8 @@ scan_networks() {
 # Capture PMKIDs
 capture_pmkids() {
     local timeout=$1
-    local output_file="$OUTPUT_DIR/capture_$(date +%Y%m%d_%H%M%S).pcapng"
+    local output_file
+    output_file="$OUTPUT_DIR/capture_$(date +%Y%m%d_%H%M%S).pcapng"
     
     log "INFO" "Starting PMKID capture for ${timeout}s..."
     log "INFO" "Output file: $output_file"
@@ -163,7 +165,8 @@ capture_pmkids() {
     
     if [ -f "$output_file" ]; then
         # Linux first (WiFi Pineapple Nano), then macOS fallback
-        local file_size=$(stat -c%s "$output_file" 2>/dev/null || stat -f%z "$output_file" 2>/dev/null)
+        local file_size
+        file_size=$(stat -c%s "$output_file" 2>/dev/null || stat -f%z "$output_file" 2>/dev/null)
         
         if [ $file_size -gt 0 ]; then
             log "INFO" "Capture complete: $output_file (${file_size} bytes)"
@@ -173,7 +176,8 @@ capture_pmkids() {
             hcxpcapngtool -o "$hash_file" "$output_file" 2>/dev/null
             
             if [ -f "$hash_file" ]; then
-                local hash_count=$(wc -l < "$hash_file")
+                local hash_count
+                hash_count=$(wc -l < "$hash_file")
                 log "INFO" "Extracted $hash_count PMKID hash(es) to: $hash_file"
                 
                 # Display captured PMKIDs
@@ -202,9 +206,9 @@ cleanup() {
     
     # Restore interface to managed mode
     if [ -n "$INTERFACE" ]; then
-        ip link set $INTERFACE down 2>/dev/null
-        iw dev $INTERFACE set type managed 2>/dev/null
-        ip link set $INTERFACE up 2>/dev/null
+        ip link set "$INTERFACE" down 2>/dev/null
+        iw dev "$INTERFACE" set type managed 2>/dev/null
+        ip link set "$INTERFACE" up 2>/dev/null
         log "INFO" "Interface restored to managed mode"
     fi
 }
