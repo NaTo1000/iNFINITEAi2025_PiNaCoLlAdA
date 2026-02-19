@@ -692,9 +692,16 @@ cmd_auto() {
         # Scan and build target list
         _scan_file=$(scan_aps)
         
+        # Validate scan results
+        if [ -z "$_scan_file" ] || [ ! -f "$_scan_file" ]; then
+            log warn "Scan failed or produced no results, waiting..."
+            sleep "$PMKID_SCAN_INTERVAL"
+            continue
+        fi
+        
         # Parse scan results to extract BSSIDs
         # This is a simplified parser - real implementation would be more robust
-        if [ -f "$_scan_file" ] && [ -s "$_scan_file" ]; then
+        if [ -s "$_scan_file" ]; then
             grep -oE '([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}' "$_scan_file" | \
                 sort -u > "$_targets_file" || true
         fi
@@ -902,9 +909,10 @@ cmd_clean() {
             ;;
     esac
     
-    # Remove files
+    # Remove files safely
     if [ -d "$PMKID_OUTPUT_DIR" ]; then
-        rm -rf "${PMKID_OUTPUT_DIR:?}"/*
+        # Use find for safer cleanup
+        find "$PMKID_OUTPUT_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
         log info "Cleaned output directory: $PMKID_OUTPUT_DIR"
     fi
     
