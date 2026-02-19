@@ -43,3 +43,12 @@ time-of-build-after.log
 time-of-build-before.log
 time-of-build-both.log
 time-of-build-pretty.log
+
+# PMKIDAttack output and temporary files
+/tmp/pmkid_results/
+*.pcapng
+*.pcap
+*.cap
+*.log
+scripts/config.sh
+scripts/targets.txt

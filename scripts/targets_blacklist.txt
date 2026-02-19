@@ -1,0 +1,8 @@
+# iFINITEAi2025_PiNeApPlErInGs - Blacklist
+# One BSSID per line (with or without colons)
+# These APs will be skipped when PMKID_TARGET_MODE=blacklist
+#
+# Examples:
+# AA:BB:CC:DD:EE:FF
+# 00:11:22:33:44:55
+# aabbccddeeff
