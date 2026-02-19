@@ -162,7 +162,8 @@ capture_pmkids() {
     timeout $timeout hcxdumptool -i $INTERFACE -o "$output_file" --enable_status=1
     
     if [ -f "$output_file" ]; then
-        local file_size=$(stat -f%z "$output_file" 2>/dev/null || stat -c%s "$output_file" 2>/dev/null)
+        # Linux first (WiFi Pineapple Nano), then macOS fallback
+        local file_size=$(stat -c%s "$output_file" 2>/dev/null || stat -f%z "$output_file" 2>/dev/null)
         
         if [ $file_size -gt 0 ]; then
             log "INFO" "Capture complete: $output_file (${file_size} bytes)"

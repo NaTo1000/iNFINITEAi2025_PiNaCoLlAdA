@@ -154,7 +154,7 @@ test_interfaces() {
             test_info "  - $iface"
             
             # Check if interface supports monitor mode
-            if iw list 2>/dev/null | grep -q "monitor"; then
+            if iw list 2>/dev/null | grep -A 10 "Supported interface modes" | grep -q "monitor"; then
                 test_pass "    Monitor mode supported"
             else
                 test_warn "    Monitor mode support unknown"

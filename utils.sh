@@ -32,8 +32,18 @@ show_stats() {
     
     # Count files
     local pcapng_count=$(ls -1 "$CAPTURE_DIR"/*.pcapng 2>/dev/null | wc -l)
-    local hash_count=$(cat "$CAPTURE_DIR"/*.hc22000 2>/dev/null | wc -l)
-    local unique_bssid=$(cat "$CAPTURE_DIR"/*.hc22000 2>/dev/null | cut -d'*' -f4 | sort -u | wc -l)
+    
+    # Count hashes with validation
+    local hash_count=0
+    if ls "$CAPTURE_DIR"/*.hc22000 2>/dev/null | grep -q .; then
+        hash_count=$(find "$CAPTURE_DIR" -name "*.hc22000" -type f -exec cat {} \; 2>/dev/null | grep -v '^$' | wc -l)
+    fi
+    
+    # Count unique BSSIDs with validation
+    local unique_bssid=0
+    if [ $hash_count -gt 0 ]; then
+        unique_bssid=$(find "$CAPTURE_DIR" -name "*.hc22000" -type f -exec cat {} \; 2>/dev/null | grep -v '^$' | cut -d'*' -f4 | sort -u | wc -l)
+    fi
     
     echo "Total capture files: $pcapng_count"
     echo "Total PMKID hashes: $hash_count"
